@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block body %}
+<!-- <h1>Events</h1> -->
+<div class="event_cont">
+    {% for d in data %}
+    <div class="card" onclick="next({{d.id}})">
+        <div class="card-body" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                {{d.event_name}}
+
+            </div>
+
+            <a href="/poster/del/{{d.id}}">
+                <i class="bi bi-dash-circle"></i>
+            </a>
+
+        </div>
+        <div class="card-footer text-muted">
+            <span class="">{{d.event_on_date}}</span>
+            <span class="float-md-end"> {{d.event_on_time}}</span>
+
+        </div>
+    </div>
+
+
+    {% empty %}
+    <div class="container">
+
+        <button type="button" class="icon-btn" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <i class="bi bi-plus-square ico"></i>
+        </button>
+    </div>
+    {% endfor %}
+
+    <div class="card" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        <div class="card-body" style="text-align: center; margin: 0; padding: 1;">
+            <i class="bi bi-plus-square" style="font-size: 20px;"></i>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Add Event</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" id="event_info">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label">Event Name</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput1"
+                            placeholder="Boost your confidence" name="name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="" class="form-label">Event Held on</label><br>
+                        <div class="dt-picker">
+                            <input type="date" class="form-control m-1" name="date">
+                            <input type="time" class="form-control m-1" name="time">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="exampleFormControlTextarea1" class="form-label">About Event</label>
+                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
+                            placeholder="This event will help people to enhance their public speaking skill"
+                            name="about"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label">Tags</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput1"
+                            placeholder="public,speaker,motivation" name="tags">
+                    </div> 
+                    
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label">Additional Info</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput1"
+                            placeholder="www.mysite.com" name="info">
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                <button type="button" class="btn btn-primary" onclick="send_form()"><i
+                        class="bi bi-plus"></i>Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}
+
+{% block js %}
+<script>
+    function next(id) {
+        window.location.href = `/poster/${id}`;
+    }
+</script>
+{% endblock js %}
+
+</html>

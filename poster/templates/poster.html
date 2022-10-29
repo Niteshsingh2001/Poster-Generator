@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="mainBody">
+
+    <div class="sidebar">
+        <a href="/"><i class="bi bi-house-door-fill icon_size"></i></a>
+        <button class="btn" onclick="regen()" title="Regenerate"><i
+                class="bi bi-arrow-clockwise icon_size"></i></button>
+        <button class="btn" onclick="edit()" title="Edit Content"><i class="bi bi-pencil-square icon_size"
+                id="edit"></i></button>
+        <button class="btn" onclick="change_text_color()" title="Change Text Color"><i
+                class="bi bi-fonts icon_size"></i></button>
+        <button class="btn" onclick="change_backdrop()" title="Change Backdrop Color"><i
+                class="bi bi-back icon_size"></i></button>
+
+
+    
+
+        <button class="btn" onclick="chaneg_bg()"><i class="bi bi-card-image icon_size"
+                title="Change Background"></i></button>
+        <a href="#" id="screenshot" title="Download" onclick="downloadSS()"><i class="bi bi-download icon_size"></i></a>
+        
+    </div>
+    <div class="tab_cont" , id="tab_cont">
+
+        <div class="tab_card" id="tab" style="display:none ;">
+            <Label>Backdrop Color</Label>
+            <input type="color" style="margin: 5px;" class="form-control " id="backdrop_color">
+            <Label>Backdrop Opacity</Label>
+            <input type="range" style="margin: 5px;" class="form-range" max="1" min="0" value="0.5" step="0.1"
+                id="opacity">
+        </div>
+
+        <div class="tab_card" id="text_color" style="display:none">
+            <Label>Logo</Label>
+            <input type="color" style="margin: 5px;" class="form-control " name="" id="text_color1">
+            <Label>Content</Label>
+            <input type="color" style="margin: 5px;" class="form-control " name="" id="text_color2">
+            <Label>Date Time</Label>
+            <input type="color" style="margin: 5px;" class="form-control " name="" id="text_color3">
+            <Label>Information</Label>
+            <input type="color" style="margin: 5px;" class="form-control " name="" id="text_color4">
+        </div>
+    </div>
+
+    <!--Preview -->
+    {% for d in data %}
+    <div class="container">
+        <div class="post" id="bg_block">
+            <div class="card-body custom-card-body">
+
+                <div class="logo">
+                    Organizer
+                </div>
+
+                <div class="heading">
+                    {{ heading }}
+                    <br>
+                    <span class="extra">Join Our Upcoming Event!</span>
+
+                </div>
+
+                <div class="dt">
+                    {{ d.event_on_date }} @ {{ d.event_on_time }}
+                </div>
+
+                <div class="venue">
+                    {{ d.additional_info }}
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock body %}
+
+{% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.10.8/html-to-image.js"
+    integrity="sha512-U8XDCopN6qXPojHomT04a6SrPjPOCTfMVovteM9Jk0eH7787fWEDGgN3gAPm7TKsv5FzJHYYK/lxitXh9vXT2w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    let bg_block = document.getElementById("bg_block");
+
+
+    var randomColor = Math.floor(Math.random() * 16777215).toString(16);
+
+    // Get Random Number
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * max);
+    }
+
+    bg_block.style.backgroundColor = randomColor;
+    bg_block.style.backgroundImage = `url('{{ image }}')`;
+
+    function screenshort(image) {
+        htmlToImage.toPng(image)
+            .then(function (dataUrl) {
+                ss.href = dataUrl;
+                ss.download = "Poster";
+
+            })
+            .catch(function (error) {
+                console.error('oops, something went wrong!', error);
+            });
+
+    }
+    screenshort(bg_block);
+
+    // Chnage Background
+    function chaneg_bg() {
+        console.log("running")
+        const response = axios.get('https://api.pexels.com/v1/search', {
+            params: {
+                'query': '{{ tags }}', 'per_page': '15', 'orientation': 'square'
+            },
+            headers: {
+                'Authorization': '563492ad6f91700001000001fcb263fc16bb46568145486eadb0f08e'
+            }
+        })
+            .then(function (response) {
+                console.log(response.data['photos'][getRandomInt(15)]["src"]["medium"])
+                bg_block.style.background = `url('${response.data['photos'][getRandomInt(5)]["src"]["large"]}')`;
+                screenshort(bg_block);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
+
+
+    // Regenerate Content 
+    function regen() {
+        location.reload();
+        screenshort(bg_block);
+    }
+
+    // Download screenshot  
+    let ss = document.getElementById("screenshot");
+
+
+    function downloadSS() {
+        screenshort(bg_block);
+        ss.click();
+    }
+
+
+    // Edit Content
+    let logo = document.getElementsByClassName("logo")[0];
+    let heading = document.getElementsByClassName("heading")[0];
+    let dt = document.getElementsByClassName("dt")[0];
+    let venue = document.getElementsByClassName("venue")[0];
+    let edit_logo = document.getElementById("edit");
+    let btn_click = true;
+
+    function edit() {
+        if (btn_click === true) {
+            edit_logo.style.color = "green";
+            logo.contentEditable = "true";
+            heading.contentEditable = "true";
+            dt.contentEditable = "true";
+            venue.contentEditable = "true";
+            btn_click = false;
+        }
+        else {
+            edit_logo.style.color = "black";
+            logo.contentEditable = "false";
+            heading.contentEditable = "false";
+            dt.contentEditable = "false";
+            venue.contentEditable = "false";
+            btn_click = true;
+            screenshort(bg_block);
+
+        }
+    }
+
+    // Change Backdrop 
+    let color_input = document.getElementById("backdrop_color");
+    let opacity = document.getElementById("opacity");
+    let tab = document.getElementById("tab");
+    let backdrop = document.getElementsByClassName("custom-card-body")[0];
+    let no_backdrop_btn = document.getElementById("backdrop_color");
+    let tab_cont = document.getElementById("tab_cont");
+
+
+    function change_backdrop() {
+        lick = true;
+        // }
+        let opacity_val = 0.5;
+        let input_color_val = "#000000";
+        let rgbaCol = "rgba(0, 0, 0, 0.465);";
+
+        if (btn_click === true) {
+            tab_cont.style.display = "block";
+            tab.style.display = "block";
+            text_color.style.display = "none";
+
+            opacity.addEventListener("change", () => {
+                rgbaCol = 'rgba(' + parseInt(input_color_val.slice(-6, -4), 16) + ',' + parseInt(input_color_val.slice(-4, -2), 16) + ',' + parseInt(input_color_val.slice(-2), 16) + ',' + opacity.value + ')';
+                backdrop.style.backgroundColor = rgbaCol;
+                console.log("Running" + rgbaCol)
+
+            })
+
+            color_input.addEventListener("change", () => {
+                rgbaCol = 'rgba(' + parseInt(color_input.value.slice(-6, -4), 16) + ',' + parseInt(color_input.value.slice(-4, -2), 16) + ',' + parseInt(color_input.value.slice(-2), 16) + ',' + 0.5 + ')';
+                input_color_val = color_input.value;
+                backdrop.style.backgroundColor = rgbaCol;
+            })
+
+
+            btn_click = false;
+            screenshort(bg_block);
+        }
+        else {
+            tab_cont.style.display = "none";
+            tab.style.display = "none";
+            btn_click = true;
+            screenshort(bg_block);
+        }
+
+    }
+
+
+
+    function change_text_color() {
+        let text_color = document.getElementById("text_color");
+        let text_color1 = document.getElementById("text_color1");
+        let text_color2 = document.getElementById("text_color2");
+        let text_color3 = document.getElementById("text_color3");
+        let text_color4 = document.getElementById("text_color4");
+
+
+        if (btn_click === true) {
+            tab_cont.style.display = "block";
+            text_color.style.display = "block";
+            tab.style.display = "none";
+
+            text_color1.addEventListener("change", () => {
+                logo.style.color = text_color1.value;
+            });
+
+            text_color2.addEventListener("change", () => {
+                heading.style.color = text_color2.value;
+            });
+
+            text_color3.addEventListener("change", () => {
+                dt.style.color = text_color3.value;
+            });
+            text_color4.addEventListener("change", () => {
+                venue.style.color = text_color4.value;
+            });
+
+            btn_click = false;
+        }
+        else {
+            tab_cont.style.display = "none";
+            text_color.style.display = "none";
+            tab.style.display = "none";
+            btn_click = true;
+        }
+    }
+
+</script>
+{% endblock js %}
