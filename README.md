@@ -3,3 +3,4 @@ Poster Generator is an easy way to create beautiful event posters! With a simple
 
 **Enter Your API keys in poster/views.py**
 
+https://www.youtube.com/watch?v=5P61meOEhdU
